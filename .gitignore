@@ -1,0 +1,12 @@
+# 编译产物与运行库（由构建流程产出 / 本地依赖，不入库）
+runtime/*.exe
+runtime/*.dll
+
+# 打包产物
+*.zip
+
+# 系统与临时文件
+Thumbs.db
+Desktop.ini
+*.log
+~$*

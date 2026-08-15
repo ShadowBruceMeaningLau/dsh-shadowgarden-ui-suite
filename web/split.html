@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#07070d" />
+    <title>DeepSeek Harness · 双会话分屏</title>
+    <style>
+      html, body { height: 100%; margin: 0; }
+      body {
+        display: flex;
+        flex-direction: column;
+        background: #08080e url("/shadow-bg.png") center / cover fixed;
+        color: #b8b8cc;
+        font: 12px/1.4 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+      }
+      header {
+        height: 34px;
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 12px;
+        background: rgba(8, 8, 14, 0.88);
+        border-bottom: 1px solid rgba(139, 92, 246, 0.25);
+        user-select: none;
+      }
+      header .brand { color: #c4b5fd; letter-spacing: 0.4px; }
+      header .hint { color: #77778f; }
+      main {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        gap: 2px;
+      }
+      iframe {
+        flex: 1 1 0;
+        min-width: 0;
+        height: 100%;
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <span class="brand">DeepSeek Harness · 双会话分屏</span>
+      <span class="hint"><a href="/kanban.html" target="_blank" rel="noopener" style="color:#c4b5fd;">看板 ↗</a>　左右窗格相互独立，分别选择会话；建议折叠各窗格侧边栏</span>
+    </header>
+    <main>
+      <iframe src="/" title="left session" allow="clipboard-read; clipboard-write" allowfullscreen></iframe>
+      <iframe src="/" title="right session" allow="clipboard-read; clipboard-write" allowfullscreen></iframe>
+    </main>
+  </body>
+</html>

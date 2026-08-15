@@ -1,0 +1,162 @@
+/* ============================================================================
+   DeepSeek Harness — "Shadow" Theme (Noir Edition)
+   灵感：《想要成为影之实力者》(The Eminence in Shadow)
+   设计语言：更黑的暗夜 + 更深邃的魔法紫 + 「I am Atomic」绯红
+   实现：在官方 --dsw-* token 之后加载本文件，覆盖静态色板，别名层自动跟随。
+   ============================================================================ */
+
+/* ---------- 通用 ---------- */
+
+::selection {
+  background: rgba(109, 40, 217, 0.38);
+  color: inherit;
+}
+
+*:focus-visible {
+  outline-color: var(--dsw-static-deepseek-450) !important;
+}
+
+/* ---------- 深色模式：完整 Shadow 体验（Noir） ---------- */
+
+body[data-ds-dark-theme] {
+  /* 中性色板 → 更黑的紫调夜幕 */
+  --dsw-static-neutral-bluish-1000: rgb(4, 4, 10);
+  --dsw-static-neutral-bluish-950: rgb(8, 8, 14);
+  --dsw-static-neutral-bluish-900: rgb(11, 11, 19);
+  --dsw-static-neutral-bluish-875: rgb(15, 15, 25);
+  --dsw-static-neutral-bluish-850: rgb(19, 19, 31);
+  --dsw-static-neutral-bluish-800: rgb(24, 24, 38);
+  --dsw-static-neutral-bluish-750: rgb(31, 31, 48);
+  --dsw-static-neutral-bluish-700: rgb(42, 42, 62);
+  --dsw-static-neutral-bluish-600: rgb(76, 76, 104);
+  --dsw-static-neutral-bluish-550: rgb(94, 94, 124);
+  --dsw-static-neutral-bluish-500: rgb(114, 114, 146);
+  --dsw-static-neutral-bluish-400: rgb(144, 144, 176);
+  --dsw-static-neutral-bluish-300: rgb(178, 178, 204);
+  --dsw-static-neutral-bluish-200: rgb(208, 208, 226);
+  --dsw-static-neutral-bluish-150: rgb(220, 220, 236);
+  --dsw-static-neutral-bluish-100: rgb(228, 228, 242);
+  --dsw-static-neutral-bluish-75: rgb(234, 234, 246);
+  --dsw-static-neutral-bluish-60: rgb(238, 238, 248);
+  --dsw-static-neutral-bluish-50: rgb(244, 244, 250);
+  --dsw-static-neutral-bluish-00: rgb(252, 252, 254);
+
+  /* 品牌色 → 更深邃的魔法紫 */
+  --dsw-static-deepseek-50: rgb(228, 218, 250);
+  --dsw-static-deepseek-100: rgb(212, 194, 249);
+  --dsw-static-deepseek-200: rgb(186, 160, 242);
+  --dsw-static-deepseek-300: rgb(158, 124, 235);
+  --dsw-static-deepseek-400: rgb(139, 92, 246);
+  --dsw-static-deepseek-450: rgb(109, 40, 217);
+  --dsw-static-deepseek-500: rgb(91, 33, 182);
+  --dsw-static-deepseek-600: rgb(76, 29, 149);
+  --dsw-static-deepseek-700-delete: rgb(58, 22, 114);
+  --dsw-static-deepseek-800: rgb(38, 20, 68);
+  --dsw-static-deepseek-900: rgb(26, 14, 46);
+
+  /* 错误/危险色 → 绯红（保持不变） */
+  --dsw-static-red-100: rgb(255, 228, 232);
+  --dsw-static-red-400: rgb(244, 63, 94);
+  --dsw-static-red-500: rgb(225, 29, 72);
+  --dsw-static-red-600: rgb(190, 18, 60);
+  --dsw-static-red-900: rgb(60, 10, 26);
+
+  /* 思考渐隐与选中渐隐适配更深夜幕 */
+  --dsw-linear-gradient-think: linear-gradient(180deg, #0d0d16 20.19%, rgba(13, 13, 22, 0) 100%);
+  --dsw-linear-think-select: linear-gradient(180deg, #141422 20.19%, rgba(20, 20, 34, 0) 100%);
+
+  /* 滚动条滑块：暗紫魔法能量 */
+  --dsh-scrollbar-thumb: rgba(109, 40, 217, 0.5);
+  --dsh-scrollbar-thumb-hover: rgba(139, 92, 246, 0.68);
+
+  /* ---------- 背景图与雾面玻璃层 ---------- */
+  background-color: rgb(8, 8, 14);
+  background-image: url("/shadow-bg.png");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+
+  --dsw-alias-bg-base: rgba(8, 8, 14, 0.2);
+  --dsw-alias-bg-layer-1: rgba(15, 15, 25, 0.5);
+  /* 设置面板等高层表面：完全不透明，保证可读性 */
+  --dsw-alias-bg-layer-2: rgb(19, 19, 31);
+  --dsw-alias-bg-layer-3: rgba(24, 24, 38, 0.64);
+  --dsw-alias-bg-module-platform: rgba(24, 24, 38, 0.62);
+  --dsw-alias-bg-multi-select: rgba(19, 19, 31, 0.64);
+  --dsw-alias-bg-overlay: rgba(42, 42, 62, 0.6);
+  --dsw-specific-sidebar-fill: rgba(11, 11, 19, 0.5);
+  /* 输入框与消息气泡：完全不透明 */
+  --dsw-specific-bubble: rgb(19, 19, 31);
+  --dsw-specific-input-major: rgb(19, 19, 31);
+  --dsw-specific-selector: rgba(24, 24, 38, 0.62);
+  --dsw-specific-tip: rgba(24, 24, 38, 0.62);
+  --dsw-alias-markdown-code-block: rgba(11, 11, 19, 0.72);
+  --dsw-alias-markdown-code-block-banner: rgba(19, 19, 31, 0.72);
+  --dsw-alias-markdown-inline-code: rgba(19, 19, 31, 0.52);
+  --dsw-alias-toast-bg: rgba(31, 31, 48, 0.82);
+  --dsw-alias-tooltip-bg: rgba(31, 31, 48, 0.84);
+
+  /* 边框优化：紫调发丝线层级（l1 最弱 → l4 最强） */
+  --dsw-alias-border-inverted: rgba(167, 139, 250, 0.14);
+  --dsw-alias-border-inverted2: rgba(167, 139, 250, 0.1);
+  --dsw-alias-border-l1: rgba(167, 139, 250, 0.1);
+  --dsw-alias-border-l2: rgba(167, 139, 250, 0.16);
+  --dsw-alias-border-l2-darkmode-thin: rgba(167, 139, 250, 0.12);
+  --dsw-alias-border-l3: rgba(167, 139, 250, 0.22);
+  --dsw-alias-border-l4: rgba(167, 139, 250, 0.28);
+}
+
+/* 氛围光：左上紫月、右下绯红余烬（更幽暗） */
+body[data-ds-dark-theme]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  background:
+    radial-gradient(52% 46% at 12% 8%, rgba(91, 33, 182, 0.065), transparent 68%),
+    radial-gradient(44% 38% at 88% 92%, rgba(159, 18, 57, 0.05), transparent 70%);
+  mix-blend-mode: screen;
+}
+
+/* ---------- 浅色模式：暗影日间（淡紫白昼） ---------- */
+
+body {
+  --dsw-static-neutral-bluish-1000: rgb(12, 12, 20);
+  --dsw-static-neutral-bluish-950: rgb(18, 17, 30);
+  --dsw-static-neutral-bluish-900: rgb(25, 24, 40);
+  --dsw-static-neutral-bluish-875: rgb(32, 30, 50);
+  --dsw-static-neutral-bluish-850: rgb(40, 38, 60);
+  --dsw-static-neutral-bluish-800: rgb(50, 47, 74);
+  --dsw-static-neutral-bluish-750: rgb(62, 58, 90);
+  --dsw-static-neutral-bluish-700: rgb(76, 72, 106);
+  --dsw-static-neutral-bluish-600: rgb(108, 102, 140);
+  --dsw-static-neutral-bluish-500: rgb(134, 128, 166);
+  --dsw-static-neutral-bluish-400: rgb(164, 158, 196);
+  --dsw-static-neutral-bluish-300: rgb(200, 196, 226);
+  --dsw-static-neutral-bluish-200: rgb(221, 218, 238);
+  --dsw-static-neutral-bluish-150: rgb(231, 229, 243);
+  --dsw-static-neutral-bluish-100: rgb(237, 235, 247);
+  --dsw-static-neutral-bluish-75: rgb(242, 241, 249);
+  --dsw-static-neutral-bluish-60: rgb(245, 244, 250);
+  --dsw-static-neutral-bluish-50: rgb(248, 247, 252);
+  --dsw-static-neutral-bluish-00: rgb(255, 255, 255);
+
+  --dsw-static-deepseek-50: rgb(228, 218, 250);
+  --dsw-static-deepseek-100: rgb(212, 194, 249);
+  --dsw-static-deepseek-200: rgb(186, 160, 242);
+  --dsw-static-deepseek-300: rgb(158, 124, 235);
+  --dsw-static-deepseek-400: rgb(124, 58, 237);
+  --dsw-static-deepseek-450: rgb(109, 40, 217);
+  --dsw-static-deepseek-500: rgb(91, 33, 182);
+  --dsw-static-deepseek-600: rgb(76, 29, 149);
+  --dsw-static-deepseek-700-delete: rgb(58, 22, 114);
+  --dsw-static-deepseek-800: rgb(38, 20, 68);
+  --dsw-static-deepseek-900: rgb(26, 14, 46);
+
+  --dsw-static-red-100: rgb(255, 228, 232);
+  --dsw-static-red-400: rgb(244, 63, 94);
+  --dsw-static-red-500: rgb(225, 29, 72);
+  --dsw-static-red-600: rgb(190, 18, 60);
+  --dsw-static-red-900: rgb(60, 10, 26);
+}
