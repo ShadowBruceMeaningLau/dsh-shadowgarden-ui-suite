@@ -273,18 +273,6 @@ public class HubForm : Form
             }
         }
         await wv.EnsureCoreWebView2Async(wvEnv);
-        if (url == "http://127.0.0.1:3080")
-        {
-            wv.NavigationStarting += (s2, e2) =>
-            {
-                try
-                {
-                    if (e2.Uri != null && e2.Uri.Contains("127.0.0.1") && ThemeGuard.ThemeMissing())
-                        ThemeGuard.ApplyTheme();
-                }
-                catch { }
-            };
-        }
         wv.Source = new Uri(url);
 
         tabs.Add(new HubTab { Name = name, Url = url, View = wv, Wrap = wrap, Btn = b, Closable = closable });
@@ -536,62 +524,8 @@ public static class HubRuntime
 
 public static class ThemeGuard
 {
-    /* DSH 服务重启会重新解包官方前端，覆盖注入的主题。
-       这里负责检测主题是否丢失并自动重新部署 apply-shadow-theme.ps1。 */
-
-    public static string FindDistIndex()
-    {
-        try
-        {
-            string home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            string idx = Path.Combine(home, ".dsh", "profiles", "node_modules", "@deepseek-ai", "dsh-web-frontend", "dist", "index.html");
-            if (File.Exists(idx)) return idx;
-            string baseDir = Path.Combine(home, ".dsh", "profiles", "node_modules", "@deepseek-ai");
-            if (Directory.Exists(baseDir))
-            {
-                foreach (var d in Directory.GetDirectories(baseDir))
-                {
-                    if (Path.GetFileName(d).Contains("web-frontend"))
-                    {
-                        string i2 = Path.Combine(d, "dist", "index.html");
-                        if (File.Exists(i2)) return i2;
-                    }
-                }
-            }
-        }
-        catch { }
-        return null;
-    }
-
-    public static bool ThemeMissing()
-    {
-        string idx = FindDistIndex();
-        if (idx == null) return true;
-        try { return !File.ReadAllText(idx).Contains("dsh-kanban.js"); }
-        catch { return true; }
-    }
-
-    public static void ApplyTheme()
-    {
-        try
-        {
-            string script = Path.Combine(Application.StartupPath, "..", "scripts", "apply-shadow-theme.ps1");
-            if (!File.Exists(script)) script = Path.Combine(Application.StartupPath, "apply-shadow-theme.ps1");
-            if (!File.Exists(script)) return;
-            var psi = new System.Diagnostics.ProcessStartInfo();
-            psi.FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
-            psi.Arguments = "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File \"" + script + "\"";
-            psi.CreateNoWindow = true;
-            psi.UseShellExecute = false;
-            var p = System.Diagnostics.Process.Start(psi);
-            if (p != null)
-            {
-                p.WaitForExit(20000);
-                HubLog.W("theme apply exit=" + p.ExitCode);
-            }
-        }
-        catch (Exception ex) { HubLog.W("theme apply ex: " + ex.Message); }
-    }
+    /* 主题自愈已改由 dsh 插件（dsh-shadowgarden-ui-suite）承担：
+       主题/看板资源随插件常驻，无需任何部署步骤。 */
 }
 
 public class HubAppContext : ApplicationContext
@@ -600,7 +534,6 @@ public class HubAppContext : ApplicationContext
 
     public HubAppContext(string initialHost)
     {
-        if (ThemeGuard.ThemeMissing()) ThemeGuard.ApplyTheme();
         OpenWindow(initialHost);
         FsHotkey.EnsureInstalled();
         cmdTimer = new System.Windows.Forms.Timer();

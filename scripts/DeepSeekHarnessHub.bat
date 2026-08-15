@@ -44,9 +44,7 @@ exit /b 1
 
 :open
 
-rem Re-apply the Shadow theme in case the server re-extracted the official frontend.
-
-powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "%~dp0apply-shadow-theme.ps1" >nul 2>&1
+rem Theme/kanban are served by the dsh-shadowgarden-ui-suite plugin — no deploy step needed.
 
 start "" "%~dp0..\runtime\dsh-hub.exe" dsh
 
