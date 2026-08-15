@@ -1,6 +1,7 @@
 {
   "name": "dsh-shadowgarden-ui-suite",
   "version": "1.0.0",
+  "type": "module",
   "description": "Shadow Garden UI suite for DeepSeek Harness: Shadow theme, kanban drawer, energy effects and task-done notifications — installable as a dsh plugin.",
   "main": "lib/index.js",
   "exports": {
