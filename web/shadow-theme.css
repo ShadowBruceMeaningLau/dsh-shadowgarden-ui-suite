@@ -71,7 +71,7 @@ body[data-ds-dark-theme] {
 
   /* ---------- 背景图与雾面玻璃层 ---------- */
   background-color: rgb(8, 8, 14);
-  background-image: url("/shadow-bg.png");
+  background-image: url("/shadow/shadow-bg.png");
   background-size: cover;
   background-position: center;
   background-attachment: fixed;

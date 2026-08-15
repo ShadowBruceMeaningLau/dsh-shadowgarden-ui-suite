@@ -53,7 +53,7 @@
     btn.style.display = open ? "none" : "flex";
     if (open && !loaded) {
       loaded = true;
-      frame.src = "/kanban.html?v=15";
+      frame.src = "/shadow/kanban.html?v=15";
     }
     try {
       localStorage.setItem(OPEN_KEY, open ? "1" : "0");
