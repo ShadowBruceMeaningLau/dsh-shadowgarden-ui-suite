@@ -1,0 +1,5 @@
+# dsh-shadowgarden-ui-suite bundle patch
+# Installed via: dsh plugin --profile web add dsh-shadowgarden-ui-suite
+- insert:
+    - id: shadowgarden-ui
+      name: 'dsh-shadowgarden-ui-suite'
