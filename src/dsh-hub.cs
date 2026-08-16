@@ -237,7 +237,11 @@ public class HubForm : Form
 
     private async System.Threading.Tasks.Task AddTabAsync(string name, string url, bool closable)
     {
-        var wrap = new Panel();
+        // 用 FlowLayoutPanel：子控件（标签文字按钮 + × 关闭按钮）自动从左到右并排，
+        // 普通 Panel 不会排列子控件，× 会与标签重叠在原点导致看不见。
+        var wrap = new FlowLayoutPanel();
+        wrap.FlowDirection = FlowDirection.LeftToRight;
+        wrap.WrapContents = false;
         wrap.AutoSize = true;
         wrap.AutoSizeMode = AutoSizeMode.GrowAndShrink;
         wrap.Height = 28;
@@ -273,7 +277,7 @@ public class HubForm : Form
             x.FlatAppearance.MouseOverBackColor = C_CLOSE_HOVER;
             x.ForeColor = C_TEXT;
             x.Size = new Size(22, 28);
-            x.Margin = new Padding(0);
+            x.Margin = new Padding(2, 0, 0, 0);
             x.Font = new Font("Microsoft YaHei UI", 10f);
             x.Cursor = Cursors.Hand;
             x.Tag = wrap;
