@@ -408,8 +408,24 @@ public class HubForm : Form
     {
         if (dragActive && dragMoved && dragIdx >= 0)
         {
+            Point up = Control.MousePosition;
             Rectangle plusRc = addBtn.RectangleToScreen(addBtn.ClientRectangle);
-            if (plusRc.Contains(Control.MousePosition))
+            Rectangle barRc = tabBar.RectangleToScreen(tabBar.ClientRectangle);
+            bool overAnotherTab = false;
+            for (int i = 0; i < tabs.Count; i++)
+            {
+                if (i == dragIdx) continue;
+                Rectangle rc = tabs[i].Wrap.RectangleToScreen(tabs[i].Wrap.ClientRectangle);
+                if (rc.Contains(up)) { overAnotherTab = true; break; }
+            }
+            bool isFixed = dragIdx < 4;
+            // 投放判定：
+            //  - 任意标签拖到 “+” 上 → 复制
+            //  - 固定标签拖到标签栏空白区域（含 + 号后面的区域）→ 复制
+            //  - 动态标签落在其他空白处 → 不复制（其拖拽用于排序）
+            bool dropZone = plusRc.Contains(up) ||
+                            (isFixed && barRc.Contains(up) && !overAnotherTab);
+            if (dropZone)
             {
                 int dup = dragIdx;
                 dragActive = false;
