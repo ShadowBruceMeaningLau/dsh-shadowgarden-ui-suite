@@ -59,7 +59,6 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /nologo /target:winexe ^
 
 ## 其他说明
 
-- `scripts/patch-better-sidebar.ps1`：给第三方插件 dsh-better-sidebar 的资源管理器加自由切换路径能力（可选，与其本身无关）
 - 标签：`dsh-plugin` · `deepseek-harness` · `theme` · `shadow`
 
 ## 许可证
