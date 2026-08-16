@@ -5,6 +5,9 @@ runtime/*.dll
 # 打包产物
 *.zip
 
+# dist 遗留文件备份（本机回滚用，不入库）
+legacy-dist-backup/
+
 # 系统与临时文件
 Thumbs.db
 Desktop.ini

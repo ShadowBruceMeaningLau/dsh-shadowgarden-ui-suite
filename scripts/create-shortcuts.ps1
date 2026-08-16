@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 # Create desktop shortcuts for the whole Shadow suite (icons shipped with this package)
 # Layout: desktop root keeps only 旗舰版 + 极速版; everything else lives in "DeepSeek 工具"
 $ws = New-Object -ComObject WScript.Shell
@@ -44,9 +44,8 @@ if (Test-Path $hubVbs) {
 New-AppShortcut "DeepSeek Harness 极速版" "http://127.0.0.1:3080" (Join-Path $assetDir "deepseek.ico")
 
 # 「DeepSeek 工具」文件夹：辅助入口与内部文件
-New-AppShortcut "DeepSeek Harness 分屏" "http://127.0.0.1:3080/split.html" (Join-Path $assetDir "deepseek.ico") "" $toolDir
-$kanbanUrl = [System.Uri]::new((Join-Path $webDir "kanban.html")).AbsoluteUri
-New-AppShortcut "看板" "" (Join-Path $assetDir "kanban.ico") "--app=`"$kanbanUrl`"" $toolDir
+New-AppShortcut "DeepSeek Harness 分屏" "http://127.0.0.1:3080/shadow/split.html" (Join-Path $assetDir "deepseek.ico") "" $toolDir
+New-AppShortcut "看板" "http://127.0.0.1:3080/shadow/kanban.html" (Join-Path $assetDir "kanban.ico") "" $toolDir
 New-AppShortcut "DeepSeek API 用量" "https://platform.deepseek.com/usage" (Join-Path $assetDir "deepseek.ico") "" $toolDir
 New-AppShortcut "GitHub" "https://github.com" (Join-Path $assetDir "github.ico") "" $toolDir
 New-AppShortcut "DeepSeek Chat" "https://chat.deepseek.com/" (Join-Path $assetDir "deepseek.ico") "" $toolDir
