@@ -37,6 +37,9 @@ public class HubForm : Form
     private CoreWebView2Environment env;
     private CoreWebView2Environment dshEnv;
     private ContextMenuStrip tabMenu;
+    private Panel addrBar;
+    private TextBox addrBox;
+    private Button addrGo;
     private bool dragActive = false;
     private bool dragMoved = false;
     private int dragIdx = -1;
@@ -101,7 +104,38 @@ public class HubForm : Form
         content.Dock = DockStyle.Fill;
         content.BackColor = C_CONTENT;
 
+        /* 地址栏：每个标签可输入任意网址跳转；DSH/用量/Chat 三个固定标签保留 */
+        addrBar = new Panel();
+        addrBar.Dock = DockStyle.Top;
+        addrBar.Height = 32;
+        addrBar.BackColor = C_BG;
+        addrBar.Padding = new Padding(6, 4, 6, 4);
+
+        addrGo = new Button();
+        addrGo.Text = "前往";
+        addrGo.Dock = DockStyle.Right;
+        addrGo.Width = 58;
+        addrGo.FlatStyle = FlatStyle.Flat;
+        addrGo.FlatAppearance.BorderSize = 1;
+        addrGo.FlatAppearance.BorderColor = Color.FromArgb(96, 74, 168);
+        addrGo.FlatAppearance.MouseOverBackColor = C_TAB_ACTIVE;
+        addrGo.ForeColor = C_TEXT_ACTIVE;
+        addrGo.Font = new Font("Microsoft YaHei UI", 9f);
+        addrGo.Click += (s, e) => NavigateActive();
+
+        addrBox = new TextBox();
+        addrBox.Dock = DockStyle.Fill;
+        addrBox.BackColor = Color.FromArgb(20, 20, 32);
+        addrBox.ForeColor = C_TEXT_ACTIVE;
+        addrBox.BorderStyle = BorderStyle.FixedSingle;
+        addrBox.Font = new Font("Consolas", 9.5f);
+        addrBox.KeyDown += AddrKeyDown;
+
+        addrBar.Controls.Add(addrBox);
+        addrBar.Controls.Add(addrGo);
+
         Controls.Add(content);
+        Controls.Add(addrBar);
         Controls.Add(tabBar);
 
         /* “+”按钮与菜单 */
@@ -293,6 +327,18 @@ public class HubForm : Form
         {
             wv.CoreWebView2.Settings.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36";
         }
+        // 页内跳转同步到地址栏
+        int navIdx = tabs.Count;
+        wv.CoreWebView2.NavigationStarting += (s2, e2) =>
+        {
+            if (navIdx >= 0 && navIdx < tabs.Count) tabs[navIdx].Url = e2.Uri;
+            if (navIdx == active && addrBox != null && !addrBox.Focused) addrBox.Text = e2.Uri;
+        };
+        wv.CoreWebView2.NavigationCompleted += (s2, e2) =>
+        {
+            if (navIdx == active && e2.IsSuccess && addrBox != null && !addrBox.Focused && navIdx < tabs.Count)
+                addrBox.Text = tabs[navIdx].Url ?? "";
+        };
         wv.Source = new Uri(url);
 
         tabs.Add(new HubTab { Name = name, Url = url, View = wv, Wrap = wrap, Btn = b, Closable = closable });
@@ -432,6 +478,45 @@ public class HubForm : Form
             tabs[i].Btn.Font = new Font("Microsoft YaHei UI", 9.5f, (i == idx) ? FontStyle.Bold : FontStyle.Regular);
         }
         if (tabs[idx].View != null) tabs[idx].View.BringToFront();
+        if (addrBox != null && !addrBox.Focused) addrBox.Text = tabs[idx].Url ?? "";
+    }
+
+    /* 地址栏回车/点击前往：导航当前标签到任意网址（自动补 https://） */
+    private void AddrKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.KeyCode == Keys.Enter)
+        {
+            NavigateActive();
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+        }
+        else if (e.KeyCode == Keys.Escape && active >= 0 && active < tabs.Count)
+        {
+            addrBox.Text = tabs[active].Url ?? "";
+            e.Handled = true;
+        }
+    }
+
+    private void NavigateActive()
+    {
+        if (active < 0 || active >= tabs.Count) return;
+        var t = tabs[active];
+        if (t.View == null || t.View.CoreWebView2 == null) return;
+        string input = (addrBox.Text ?? "").Trim();
+        if (input == "") return;
+        if (!input.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&
+            !input.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            input = "https://" + input;
+        try
+        {
+            t.Url = input;
+            t.View.CoreWebView2.Navigate(input);
+            addrBox.Text = input;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("无法打开网址：" + ex.Message, "DSH 服务中心");
+        }
     }
 
     public void SwitchTo(string host)
