@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -153,6 +153,19 @@ public class HubForm : Form
                 ExitFullscreen();
                 e.Handled = true;
             }
+            else if (e.KeyCode == Keys.F12)
+            {
+                // 调试：为当前标签打开 WebView2 开发者工具
+                if (active >= 0 && active < tabs.Count)
+                {
+                    var t = tabs[active];
+                    if (t.View != null && t.View.CoreWebView2 != null)
+                    {
+                        try { t.View.CoreWebView2.OpenDevToolsWindow(); } catch { }
+                    }
+                }
+                e.Handled = true;
+            }
         };
 
         startTab = MatchTab(initialHost);
@@ -273,6 +286,13 @@ public class HubForm : Form
             }
         }
         await wv.EnsureCoreWebView2Async(wvEnv);
+        // 「用量」标签伪装为标准 Chrome UA：platform.deepseek.com 对 WebView2
+        // 默认 UA 可能走降级渲染路径（Edge 正常、内嵌 WebView2 局部显示）。
+        // 只作用于本标签，不影响 DSH/Chat/GitHub 标签的现有行为。
+        if (url.Contains("platform.deepseek.com"))
+        {
+            wv.CoreWebView2.Settings.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36";
+        }
         wv.Source = new Uri(url);
 
         tabs.Add(new HubTab { Name = name, Url = url, View = wv, Wrap = wrap, Btn = b, Closable = closable });
