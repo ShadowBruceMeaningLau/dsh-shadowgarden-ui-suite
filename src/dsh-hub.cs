@@ -325,7 +325,8 @@ public class HubForm : Form
             if (navIdx == active && e2.IsSuccess && addrBox != null && !addrBox.Focused && navIdx < tabs.Count)
                 addrBox.Text = tabs[navIdx].Url ?? "";
         };
-        wv.Source = new Uri(url);
+        if (url == "about:blank") wv.CoreWebView2.Navigate("about:blank");
+        else wv.Source = new Uri(url);
 
         tabs.Add(new HubTab { Name = name, Url = url, View = wv, Wrap = wrap, Btn = b, Closable = closable });
         ShowTab(tabs.Count - 1);
@@ -369,13 +370,13 @@ public class HubForm : Form
     private void TabMouseMove(object sender, MouseEventArgs e)
     {
         if (!dragActive) return;
-        if (dragIdx < 4) return; // 固定标签不参与排序
         Point cur = Control.MousePosition;
         if (!dragMoved)
         {
             if (Math.Abs(cur.X - dragStart.X) < 10 && Math.Abs(cur.Y - dragStart.Y) < 10) return;
-            dragMoved = true;
+            dragMoved = true; // 固定标签拖到 + 号复制也依赖此标记
         }
+        if (dragIdx < 4) return; // 固定标签不参与排序
         int curIdx = dragIdx;
         while (curIdx + 1 < tabs.Count)
         {
