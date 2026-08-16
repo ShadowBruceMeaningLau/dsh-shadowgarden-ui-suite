@@ -25,12 +25,8 @@ public class HubForm : Form
     private Panel content;
     private FlowLayoutPanel tabBar;
     private Button addBtn;
-    private int newSeq = 0;
     private int active = 0;
     private int startTab = 0;
-    private int ghSeq = 0;
-    private int chatSeq = 0;
-    private int dshSeq = 0;
     private int multiSeq = 0;
     private int winSeq = 1;
     private string pendingSwitch = null;
@@ -151,7 +147,7 @@ public class HubForm : Form
         addBtn.Cursor = Cursors.Hand;
 
         /* “+”按钮：点击直接新增空标签页，在地址栏输入网址回车即可跳转 */
-        addBtn.Click += (s, e) => AddTabAsyncSafe("新标签 " + (++newSeq), "about:blank", true);
+        addBtn.Click += (s, e) => AddTabAsyncSafe("新标签 " + NextSeqFor("新标签"), "about:blank", true);
 
         tabMenu = new ContextMenuStrip();
         tabMenu.Items.Add("删除标签");
@@ -444,6 +440,26 @@ public class HubForm : Form
         dragIdx = -1;
     }
 
+    /* 计算某类标签下一个可用编号：跳过仍存在的标签，复用已关闭释放的号码。
+       固定标签本身占 1 号（如「GitHub」），首个复制为「GitHub 2」。 */
+    private int NextSeqFor(string prefix)
+    {
+        var used = new HashSet<int>();
+        foreach (var t in tabs)
+        {
+            if (t.Name == prefix) { used.Add(1); continue; }
+            if (t.Name.StartsWith(prefix + " ", StringComparison.Ordinal))
+            {
+                string rest = t.Name.Substring(prefix.Length + 1).Trim();
+                int n;
+                if (int.TryParse(rest, out n)) used.Add(n);
+            }
+        }
+        int i = 1;
+        while (used.Contains(i)) i++;
+        return i;
+    }
+
     /* 拖动任意标签到 “+” 上：按源标签类型复制一个新标签 */
     private void DuplicateTab(int idx)
     {
@@ -451,10 +467,10 @@ public class HubForm : Form
         var src = tabs[idx];
         string name = src.Name;
         string url = src.Url ?? "";
-        if (name.StartsWith("GitHub")) { name = "GitHub " + (++ghSeq); }
-        else if (name.StartsWith("Chat")) { name = "Chat " + (++chatSeq); }
-        else if (name.StartsWith("DSH")) { name = "DSH " + (++dshSeq); }
-        else if (name.StartsWith("用量")) { name = "用量 " + (++newSeq); }
+        if (name.StartsWith("GitHub")) { name = "GitHub " + NextSeqFor("GitHub"); }
+        else if (name.StartsWith("Chat")) { name = "Chat " + NextSeqFor("Chat"); }
+        else if (name.StartsWith("DSH")) { name = "DSH " + NextSeqFor("DSH"); }
+        else if (name.StartsWith("用量")) { name = "用量 " + NextSeqFor("用量"); }
         AddTabAsyncSafe(name, url == "about:blank" ? "about:blank" : url, true);
     }
 
