@@ -25,7 +25,7 @@ public class HubForm : Form
     private Panel content;
     private FlowLayoutPanel tabBar;
     private Button addBtn;
-    private ContextMenuStrip addMenu;
+    private int newSeq = 0;
     private int active = 0;
     private int startTab = 0;
     private int ghSeq = 0;
@@ -150,21 +150,8 @@ public class HubForm : Form
         addBtn.Font = new Font("Microsoft YaHei UI", 10f);
         addBtn.Cursor = Cursors.Hand;
 
-        addMenu = new ContextMenuStrip();
-        var mDsh = addMenu.Items.Add("新 DSH 标签");
-        var mGh = addMenu.Items.Add("新 GitHub 标签");
-        var mChat = addMenu.Items.Add("新 Chat 标签");
-        var mUrl = addMenu.Items.Add("自定义网址…");
-        mDsh.Click += (s, e) => AddTabAsyncSafe("DSH " + (++dshSeq), "http://127.0.0.1:3080", true);
-        mGh.Click += (s, e) => AddTabAsyncSafe("GitHub " + (++ghSeq), "https://github.com", true);
-        mChat.Click += (s, e) => AddTabAsyncSafe("Chat " + (++chatSeq), "https://chat.deepseek.com/", true);
-        mUrl.Click += (s, e) =>
-        {
-            string u = Interaction.InputBox("输入网址（以 http/https 开头）：", "自定义标签", "https://", -1, -1);
-            if (!string.IsNullOrWhiteSpace(u) && (u.StartsWith("http://") || u.StartsWith("https://")))
-                AddTabAsyncSafe(u, u, true);
-        };
-        addBtn.Click += (s, e) => addMenu.Show(addBtn, new Point(0, addBtn.Height));
+        /* “+”按钮：点击直接新增空标签页，在地址栏输入网址回车即可跳转 */
+        addBtn.Click += (s, e) => AddTabAsyncSafe("新标签 " + (++newSeq), "about:blank", true);
 
         tabMenu = new ContextMenuStrip();
         tabMenu.Items.Add("删除标签");
@@ -230,11 +217,10 @@ public class HubForm : Form
                 catch { dshEnv = env; }
             }
             await AddTabAsync("DSH", "http://127.0.0.1:3080", false);
+            await AddTabAsync("GitHub", "https://github.com", false);
             await AddTabAsync("用量", "https://platform.deepseek.com/usage", false);
             await AddTabAsync("Chat", "https://chat.deepseek.com/", false);
-            if (startTab == -1)
-                await AddTabAsync("GitHub " + (++ghSeq), "https://github.com", true);
-            else
+            if (startTab >= 0)
                 ShowTab(startTab);
             if (pendingSwitch != null)
             {
@@ -271,14 +257,14 @@ public class HubForm : Form
         b.Cursor = Cursors.Hand;
         b.Tag = wrap;
         b.Click += TabBtnClick;
+        b.MouseDown += TabMouseDown;
+        b.MouseMove += TabMouseMove;
+        b.MouseUp += TabMouseUp;
         wrap.Controls.Add(b);
 
         if (closable)
         {
             b.ContextMenuStrip = tabMenu;
-            b.MouseDown += TabMouseDown;
-            b.MouseMove += TabMouseMove;
-            b.MouseUp += TabMouseUp;
 
             var x = new Button();
             x.Text = "×";
@@ -343,6 +329,11 @@ public class HubForm : Form
 
         tabs.Add(new HubTab { Name = name, Url = url, View = wv, Wrap = wrap, Btn = b, Closable = closable });
         ShowTab(tabs.Count - 1);
+        if (url == "about:blank")
+        {
+            addrBox.Text = "";
+            addrBox.Focus();
+        }
     }
 
     private int IndexOfWrap(Control c)
@@ -368,7 +359,7 @@ public class HubForm : Form
     {
         if (e.Button != MouseButtons.Left) return;
         int idx = IndexOfWrap((Control)((Button)sender).Tag);
-        if (idx < 3) return; // 固定标签不可拖动
+        // 固定标签也可拖动：用于「拖到 + 号复制新标签」；仅动态标签参与排序
         dragActive = true;
         dragMoved = false;
         dragIdx = idx;
@@ -378,6 +369,7 @@ public class HubForm : Form
     private void TabMouseMove(object sender, MouseEventArgs e)
     {
         if (!dragActive) return;
+        if (dragIdx < 4) return; // 固定标签不参与排序
         Point cur = Control.MousePosition;
         if (!dragMoved)
         {
@@ -397,7 +389,7 @@ public class HubForm : Form
             }
             else break;
         }
-        while (curIdx - 1 >= 3)
+        while (curIdx - 1 >= 4)
         {
             var prev = tabs[curIdx - 1];
             Rectangle rc = prev.Wrap.RectangleToScreen(prev.Wrap.ClientRectangle);
@@ -413,14 +405,41 @@ public class HubForm : Form
 
     private void TabMouseUp(object sender, MouseEventArgs e)
     {
+        if (dragActive && dragMoved && dragIdx >= 0)
+        {
+            Rectangle plusRc = addBtn.RectangleToScreen(addBtn.ClientRectangle);
+            if (plusRc.Contains(Control.MousePosition))
+            {
+                int dup = dragIdx;
+                dragActive = false;
+                dragMoved = false;
+                dragIdx = -1;
+                DuplicateTab(dup);
+                return;
+            }
+        }
         dragActive = false;
         dragMoved = false;
         dragIdx = -1;
     }
 
+    /* 拖动任意标签到 “+” 上：按源标签类型复制一个新标签 */
+    private void DuplicateTab(int idx)
+    {
+        if (idx < 0 || idx >= tabs.Count) return;
+        var src = tabs[idx];
+        string name = src.Name;
+        string url = src.Url ?? "";
+        if (name.StartsWith("GitHub")) { name = "GitHub " + (++ghSeq); }
+        else if (name.StartsWith("Chat")) { name = "Chat " + (++chatSeq); }
+        else if (name.StartsWith("DSH")) { name = "DSH " + (++dshSeq); }
+        else if (name.StartsWith("用量")) { name = "用量 " + (++newSeq); }
+        AddTabAsyncSafe(name, url == "about:blank" ? "about:blank" : url, true);
+    }
+
     private void MoveTab(int from, int to)
     {
-        if (from < 3 || to < 3 || from == to || from >= tabs.Count || to >= tabs.Count) return;
+        if (from < 4 || to < 4 || from == to || from >= tabs.Count || to >= tabs.Count) return;
         var t = tabs[from];
         tabs.RemoveAt(from);
         tabs.Insert(to, t);
@@ -454,9 +473,9 @@ public class HubForm : Form
 
     private int MatchTab(string host)
     {
-        if (host.Contains("chat.deepseek")) return 2;
-        if (host.Contains("platform.deepseek")) return 1;
-        if (host.Contains("github")) return -1;
+        if (host.Contains("chat.deepseek")) return 3;
+        if (host.Contains("platform.deepseek")) return 2;
+        if (host.Contains("github")) return 1;
         return 0;
     }
 
@@ -523,7 +542,7 @@ public class HubForm : Form
     {
         try
         {
-            if (env == null || tabs.Count < 3)
+            if (env == null || tabs.Count < 4)
             {
                 pendingSwitch = host;
                 return;
@@ -534,12 +553,6 @@ public class HubForm : Form
             if (idx >= 0)
             {
                 ShowTab(idx);
-            }
-            else if (host.Contains("github"))
-            {
-                int gi = FindTabByName("GitHub");
-                if (gi >= 0) ShowTab(gi);
-                else AddTabAsyncSafe("GitHub " + (++ghSeq), "https://github.com", true);
             }
             if (!fullscreen)
             {
