@@ -8,6 +8,9 @@ runtime/*.dll
 # dist 遗留文件备份（本机回滚用，不入库）
 legacy-dist-backup/
 
+# 本地运行状态（例程调度状态等）
+.dsh/
+
 # 系统与临时文件
 Thumbs.db
 Desktop.ini
